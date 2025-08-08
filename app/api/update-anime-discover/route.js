@@ -39,11 +39,7 @@ async function fetchAllPages(sort, type = "ANIME", statusFilter = null) {
   return allData;
 }
 
-export default async function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ message: "Method Not Allowed" });
-  }
-
+export async function GET(request) {
   try {
     const trending = await fetchAllPages("TRENDING_DESC");
     const popular = await fetchAllPages("POPULARITY_DESC");
@@ -58,9 +54,21 @@ export default async function handler(req, res) {
       updatedAt: new Date(),
     });
 
-    return res.status(200).json({ message: "All anime data updated successfully" });
+    return new Response(
+      JSON.stringify({ message: "All anime data updated successfully" }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     console.error("Error updating anime data:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return new Response(
+      JSON.stringify({ message: "Internal Server Error" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }

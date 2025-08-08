@@ -60,26 +60,38 @@ async function fetchAllAnime() {
   return allData;
 }
 
-export default async function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ message: "Method Not Allowed" });
-  }
-
+// Export ฟังก์ชันสำหรับ method GET เท่านั้น
+export async function GET(request) {
   try {
     const allAnime = await fetchAllAnime();
 
-    // เก็บข้อมูลลง Firestore
     await db.collection("allanime").doc("data").set({
       list: allAnime,
       updatedAt: new Date(),
     });
 
-    return res.status(200).json({
-      message: "All anime data updated successfully",
-      total: allAnime.length,
-    });
+    return new Response(
+      JSON.stringify({
+        message: "All anime data updated successfully",
+        total: allAnime.length,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error updating all anime data:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return new Response(
+      JSON.stringify({ message: "Internal Server Error" }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 }
